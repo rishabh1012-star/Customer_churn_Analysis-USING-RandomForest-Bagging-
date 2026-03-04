@@ -128,13 +128,21 @@ Age is the most important feature affecting churn behavior.
 7.Tech Stack:
 
   1.Python
+  
   2.Pandas
+  
   3.NumPy
+  
   4.Scikit-learn
+  
   5.Matplotlib
+
   6.Seaborn
+  
   7.Jupyter Notebook
+  
   8.Machine Learning
+  
 
 8.PROJECT WORKFLOW::::
   Data Collection

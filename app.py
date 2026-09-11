@@ -4,7 +4,7 @@ import numpy as np
 import joblib
 import os
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 
@@ -40,11 +40,12 @@ def load_or_train_model(csv_path="Churn_Modelling.csv"):
         new_df.drop('Exited', axis=1),
         new_df['Exited'],
         test_size=0.2,
-        shuffle=False
+        shuffle=True, 
+        stratify=True
     )
 
     transformer = ColumnTransformer(transformers=[
-        ('tnfr1', StandardScaler(),
+        ('tnfr1', MinMaxScaler(),
          ['CreditScore', 'Age', 'Tenure', 'Balance', 'NumOfProducts', 'EstimatedSalary']),
         ('tnfr2', OneHotEncoder(drop='first', sparse_output=False), ['Gender'])
     ], remainder='passthrough')
@@ -58,10 +59,11 @@ def load_or_train_model(csv_path="Churn_Modelling.csv"):
         bootstrap=True,
         criterion='gini',
         min_samples_split=5,
-        n_estimators=250,
+        n_estimators=2500,
         random_state=42,
         max_features='log2',
-        max_depth=12
+        max_depth=24,
+        
     )
     model.fit(x_train_transformed, y_train)
 
@@ -152,16 +154,17 @@ if st.button("🔍 Predict Churn", use_container_width=True, type="primary"):
 
     st.subheader("📊 Prediction Result")
 
-    if pred == 1:
-        st.error(f"⚠️ **High Risk of Churn** — Probability: {prob:.1%}")
-        st.markdown(
-            "> This customer is **likely to leave**. Consider proactive retention offers."
-        )
+    if prob >= 0.70:
+        st.error(f"🔴 High Risk of Churn — Probability: {prob:.1%}")
+        st.write("This customer has a high predicted risk of leaving.")
+
+    elif prob >= 0.40:
+        st.warning(f"🟠 Medium Risk of Churn — Probability: {prob:.1%}")
+        st.write("This customer has a significant predicted risk of leaving.")
+
     else:
-        st.success(f"✅ **Low Risk of Churn** — Probability: {prob:.1%}")
-        st.markdown(
-            "> This customer is **likely to stay**. Keep up the good service!"
-        )
+        st.success(f"🟢 Low Risk of Churn — Probability: {prob:.1%}")
+        st.write("This customer has a relatively low predicted risk of leaving.")
 
     # Probability bar
     st.markdown("**Churn Probability**")
